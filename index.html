@@ -360,15 +360,18 @@
     // nothing is blocked by ad blockers.
 
     async function sendToHandler(payload) {
-      // Send as URL-encoded — avoids CORS preflight on Apps Script endpoints
-      const res = await fetch(SHEET_HANDLER_URL, {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body:    new URLSearchParams(payload).toString()
-      });
-      const json = await res.json();
-      console.log('[Handler]', json);
-      if (json.result !== 'success') throw new Error(json.message || 'Handler error');
+      try {
+        await fetch(SHEET_HANDLER_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: new URLSearchParams(payload).toString()
+        });
+      } catch (err) {
+        console.warn('[Handler failed]', err);
+      }
     }
 
     // ── form submission ───────────────────────────────────────────────────────
