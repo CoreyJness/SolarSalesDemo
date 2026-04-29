@@ -8,7 +8,7 @@
 
   <!-- ── AMPLITUDE JS SDK ── -->
   <script type="text/javascript">
-    !function(){"use strict";!function(e,t){var r=e.amplitude||{_q:[],_iq:{}};if(r.invoked)e.console&&console.error&&console.error("Amplitude snippet has been loaded.");else{r.invoked=!0;var n=t.createElement("script");n.type="text/javascript";n.async=!0;n.src="https://cdn.amplitude.com/libs/analytics-browser-2.11.1-min.js.gz";n.onload=function(){e.amplitude.runQueuedFunctions||console.log("[Amplitude] Error: could not load SDK")};var s=t.getElementsByTagName("script")[0];s.parentNode.insertBefore(n,s);function o(e,t){e.prototype[t]=function(){return this._q.push({name:t,args:Array.prototype.slice.call(arguments,0)}),this}}var a=function(){this._q=[];return this};var i=["add","append","clearAll","prepend","set","setOnce","unset","preInsert","postInsert","remove","getUserId","setUserId","setDeviceId","setSessionId","setOptOut","getSessionId","resetSessionId","getDeviceId","identify","logEvent","setVersionName","init","remove","add"];for(var c=0;c<i.length;c++)o(a,i[c]);r.Identify=a;var u=function(){this._q=[];return this};var l=["getEventProperties","setProductId","setQuantity","setPrice","setRevenue","setRevenueType","setEventProperties"];for(var p=0;p<l.length;p++)o(u,l[p]);r.Revenue=u;var d=["getDeviceId","setDeviceId","getSessionId","setSessionId","getUserId","setUserId","setOptOut","setTransport","reset","extendSession"];for(var f=0;f<d.length;f++)r[d[f]]=function(){var e=d.indexOf(arguments.callee.name||"");r._q.push({name:d[e],args:Array.prototype.slice.call(arguments,0)})};var g=["init","add","remove","track","logEvent","identify","groupIdentify","setGroup","revenue","flush"];for(var v=0;v<g.length;v++)r[g[v]]=function(){r._q.push({name:g[v],args:Array.prototype.slice.call(arguments,0)})};e.amplitude=r}}(window,document)}();
+    !function(){"use strict";!function(e,t){var r=e.amplitude||{_q:[],_iq:{}};if(r.invoked)e.console&&console.error&&console.error("Amplitude snippet has been loaded.");else{r.invoked=!0;var n=t.createElement("script");n.type="text/javascript";n.async=!0;n.src="https://cdn.amplitude.com/libs/analytics-browser-2.11.1-min.js.gz";n.onload=function(){e.amplitude.runQueuedFunctions||console.log("[Amplitude] Error: could not load SDK")};var s=t.getElementsByTagName("script")[0];s.parentNode.insertBefore(n,s);function o(e,t){e.prototype[t]=function(){return this._q.push({name:t,args:Array.prototype.slice.call(arguments,0)}),this}}var a=function(){this._q=[];return this};var i=["add","append","clearAll","prepend","set","setOnce","unset","preInsert","postInsert","remove","getUserId","setUserId","setDeviceId","setSessionId","setOptOut","getSessionId","resetSessionId","getDeviceId","identify","logEvent","setVersionName","init","remove","add"];for(var c=0;c<i.length;c++)o(a,i[c]);r.Identify=a;var u=function(){this._q=[];return this};var l=["getEventProperties","setProductId","setQuantity","setPrice","setRevenue","setRevenueType","setEventProperties"];for(var p=0;p<l.length;p++)o(u,l[p]);r.Revenue=u;var d=["getDeviceId","setDeviceId","getSessionId","setSessionId","getUserId","setUserId","setOptOut","setTransport","reset","extendSession"];for(var f=0;f<d.length;f++){(function(idx){r[d[idx]]=function(){r._q.push({name:d[idx],args:Array.prototype.slice.call(arguments,0)})}})(f)}var g=["init","add","remove","track","logEvent","identify","groupIdentify","setGroup","revenue","flush"];for(var v=0;v<g.length;v++)r[g[v]]=function(){r._q.push({name:g[v],args:Array.prototype.slice.call(arguments,0)})};e.amplitude=r}}(window,document)}();
 
     amplitude.init('ad228784b8b61db47a4f3e7a7824a0e1', {
       defaultTracking: {
@@ -423,27 +423,30 @@
       // Use email as user_id so Amplitude can identify the person across sessions
       const userId = email;
 
-      // 1. Identify the user in the JS SDK (sets persistent user properties)
-      const identifyEvent = new amplitude.Identify();
-      identifyEvent.set('name',  name);
-      identifyEvent.set('email', email);
-      if (type === 'signup') {
-        identifyEvent.set('company', document.getElementById('signup-company').value.trim());
+      // 1 & 2. Identify + track via JS SDK — wrapped in try/catch so an
+      //         ad-blocker or blocked SDK never halts the success swap
+      try {
+        const identifyEvent = new amplitude.Identify();
+        identifyEvent.set('name',  name);
+        identifyEvent.set('email', email);
+        if (type === 'signup') {
+          identifyEvent.set('company', document.getElementById('signup-company').value.trim());
+        }
+        if (type === 'demo') {
+          identifyEvent.set('team_size', document.getElementById('demo-teamsize').value);
+        }
+        amplitude.setUserId(userId);
+        amplitude.identify(identifyEvent);
+        amplitude.track('Form Submitted', {
+          form_type:  type,
+          user_email: email,
+          user_name:  name
+        });
+      } catch (ampErr) {
+        console.warn('[Amplitude SDK] blocked or unavailable:', ampErr);
       }
-      if (type === 'demo') {
-        identifyEvent.set('team_size', document.getElementById('demo-teamsize').value);
-      }
-      amplitude.setUserId(userId);
-      amplitude.identify(identifyEvent);
 
-      // 2. Track form submit via JS SDK
-      amplitude.track('Form Submitted', {
-        form_type:  type,
-        user_email: email,
-        user_name:  name
-      });
-
-      // 3. Swap to success state immediately — don't block on network
+      // 3. Swap to success state immediately — never blocked by Amplitude
       document.getElementById(type + '-form').style.display    = 'none';
       document.getElementById(type + '-success').style.display = 'block';
 
