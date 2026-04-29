@@ -5,9 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SolarSales CRM – AI-Powered Solar Sales Platform</title>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+
+  <!-- ── AMPLITUDE JS SDK ── -->
+  <script type="text/javascript">
+    !function(){"use strict";!function(e,t){var r=e.amplitude||{_q:[],_iq:{}};if(r.invoked)e.console&&console.error&&console.error("Amplitude snippet has been loaded.");else{r.invoked=!0;var n=t.createElement("script");n.type="text/javascript";n.async=!0;n.src="https://cdn.amplitude.com/libs/analytics-browser-2.11.1-min.js.gz";n.onload=function(){e.amplitude.runQueuedFunctions||console.log("[Amplitude] Error: could not load SDK")};var s=t.getElementsByTagName("script")[0];s.parentNode.insertBefore(n,s);function o(e,t){e.prototype[t]=function(){return this._q.push({name:t,args:Array.prototype.slice.call(arguments,0)}),this}}var a=function(){this._q=[];return this};var i=["add","append","clearAll","prepend","set","setOnce","unset","preInsert","postInsert","remove","getUserId","setUserId","setDeviceId","setSessionId","setOptOut","getSessionId","resetSessionId","getDeviceId","identify","logEvent","setVersionName","init","remove","add"];for(var c=0;c<i.length;c++)o(a,i[c]);r.Identify=a;var u=function(){this._q=[];return this};var l=["getEventProperties","setProductId","setQuantity","setPrice","setRevenue","setRevenueType","setEventProperties"];for(var p=0;p<l.length;p++)o(u,l[p]);r.Revenue=u;var d=["getDeviceId","setDeviceId","getSessionId","setSessionId","getUserId","setUserId","setOptOut","setTransport","reset","extendSession"];for(var f=0;f<d.length;f++)r[d[f]]=function(){var e=d.indexOf(arguments.callee.name||"");r._q.push({name:d[e],args:Array.prototype.slice.call(arguments,0)})};var g=["init","add","remove","track","logEvent","identify","groupIdentify","setGroup","revenue","flush"];for(var v=0;v<g.length;v++)r[g[v]]=function(){r._q.push({name:g[v],args:Array.prototype.slice.call(arguments,0)})};e.amplitude=r}}(window,document)}();
+
+    amplitude.init('YOUR_API_KEY', {
+      defaultTracking: {
+        pageViews: true,
+        sessions: true,
+        formInteractions: false,
+        fileDownloads: false
+      }
+    });
+  </script>
+
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
       --bg:      #0b0f14;
       --surface: #111720;
@@ -19,44 +33,29 @@
       --muted:   #7a8fa6;
       --radius:  10px;
     }
-
     html, body { height: 100%; }
-
     body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'DM Sans', sans-serif;
-      font-weight: 300;
-      line-height: 1.7;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-      overflow-x: hidden;
+      background: var(--bg); color: var(--text);
+      font-family: 'DM Sans', sans-serif; font-weight: 300;
+      line-height: 1.7; display: flex; flex-direction: column;
+      min-height: 100vh; overflow-x: hidden;
     }
-
     body::before {
-      content: '';
-      position: fixed; inset: 0;
+      content: ''; position: fixed; inset: 0;
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
       pointer-events: none; z-index: 0; opacity: .5;
     }
-
-    /* ── NAV ── */
     nav {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 18px 48px;
-      border-bottom: 1px solid var(--border);
-      background: rgba(11,15,20,.9);
-      backdrop-filter: blur(14px);
+      padding: 18px 48px; border-bottom: 1px solid var(--border);
+      background: rgba(11,15,20,.9); backdrop-filter: blur(14px);
       position: relative; z-index: 10;
     }
     .nav-logo {
-      font-family: 'Syne', sans-serif;
-      font-weight: 800; font-size: 1.25rem;
+      font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.25rem;
       letter-spacing: -.02em; color: var(--gold); text-decoration: none;
     }
     .nav-logo span { color: var(--cyan); }
-
     nav ul { list-style: none; display: flex; gap: 36px; }
     nav ul a {
       color: var(--muted); text-decoration: none;
@@ -69,8 +68,6 @@
       border-radius: var(--radius); transition: background .2s, transform .15s !important;
     }
     .nav-cta:hover { background: var(--gold-dim) !important; transform: translateY(-1px); }
-
-    /* ── HERO ── */
     .hero {
       flex: 1; position: relative;
       display: flex; flex-direction: column;
@@ -85,7 +82,6 @@
       pointer-events: none; z-index: 0;
     }
     .hero > * { position: relative; z-index: 1; }
-
     .badge {
       display: inline-flex; align-items: center; gap: 8px;
       border: 1px solid var(--border); border-radius: 99px;
@@ -98,7 +94,6 @@
       width: 7px; height: 7px; border-radius: 50%;
       background: var(--cyan); animation: pulse 2s infinite;
     }
-
     h1 {
       font-family: 'Syne', sans-serif;
       font-size: clamp(2.8rem, 6.5vw, 5rem);
@@ -112,24 +107,20 @@
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
       background-clip: text;
     }
-
     .hero-sub {
       margin-top: 22px; max-width: 540px;
       color: var(--muted); font-size: 1.05rem;
       animation: fadeUp .55s .18s ease both;
     }
-
     .cta-group {
       display: flex; flex-wrap: wrap; gap: 16px;
       margin-top: 44px; justify-content: center;
       animation: fadeUp .55s .26s ease both;
     }
-
     .btn {
       display: inline-flex; align-items: center; gap: 10px;
       padding: 15px 34px; border-radius: var(--radius);
-      font-family: 'DM Sans', sans-serif;
-      font-size: 1rem; font-weight: 500;
+      font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 500;
       cursor: pointer; text-decoration: none;
       transition: transform .18s, box-shadow .18s;
       border: none; position: relative; overflow: hidden;
@@ -140,31 +131,17 @@
     }
     .btn:hover::after { opacity: .06; }
     .btn:hover { transform: translateY(-2px); }
-
-    .btn-primary {
-      background: var(--gold); color: #0b0f14;
-      box-shadow: 0 0 28px rgba(240,165,0,.28);
-    }
+    .btn-primary { background: var(--gold); color: #0b0f14; box-shadow: 0 0 28px rgba(240,165,0,.28); }
     .btn-primary:hover { box-shadow: 0 0 42px rgba(240,165,0,.44); }
-
-    .btn-secondary {
-      background: transparent; color: var(--text);
-      border: 1px solid var(--border);
-    }
+    .btn-secondary { background: transparent; color: var(--text); border: 1px solid var(--border); }
     .btn-secondary:hover { border-color: var(--cyan); color: var(--cyan); }
-
-    /* ── TRUST BAR ── */
     .trust-bar {
       display: flex; align-items: center; justify-content: center;
       gap: 32px; flex-wrap: wrap; padding: 20px 24px;
-      border-top: 1px solid var(--border);
-      background: rgba(17,23,32,.7);
-      font-size: .82rem; color: var(--muted);
-      position: relative; z-index: 10;
+      border-top: 1px solid var(--border); background: rgba(17,23,32,.7);
+      font-size: .82rem; color: var(--muted); position: relative; z-index: 10;
     }
     .trust-item { display: flex; align-items: center; gap: 8px; }
-
-    /* ── MODALS ── */
     .modal-overlay {
       display: none; position: fixed; inset: 0; z-index: 200;
       background: rgba(0,0,0,.75); backdrop-filter: blur(6px);
@@ -183,10 +160,7 @@
       font-size: 1.5rem; cursor: pointer; line-height: 1;
     }
     .modal-close:hover { color: var(--text); }
-    .modal h2 {
-      font-family: 'Syne', sans-serif;
-      font-size: 1.5rem; font-weight: 700; margin-bottom: 6px;
-    }
+    .modal h2 { font-family: 'Syne', sans-serif; font-size: 1.5rem; font-weight: 700; margin-bottom: 6px; }
     .modal p { color: var(--muted); font-size: .9rem; margin-bottom: 28px; }
     .modal label {
       display: block; font-size: .82rem; font-weight: 500;
@@ -203,24 +177,11 @@
     .modal select option { background: var(--surface); }
     .success-msg { display: none; text-align: center; padding: 20px 0 8px; }
     .success-msg .check { font-size: 3rem; margin-bottom: 12px; }
-    .success-msg h3 {
-      font-family: 'Syne', sans-serif; font-size: 1.3rem; font-weight: 700;
-    }
+    .success-msg h3 { font-family: 'Syne', sans-serif; font-size: 1.3rem; font-weight: 700; }
     .success-msg p { color: var(--muted); margin: 8px 0 0; }
-
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes popIn {
-      from { opacity: 0; transform: scale(.94); }
-      to   { opacity: 1; transform: scale(1); }
-    }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: .5; transform: scale(1.35); }
-    }
-
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes popIn { from { opacity: 0; transform: scale(.94); } to { opacity: 1; transform: scale(1); } }
+    @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .5; transform: scale(1.35); } }
     @media (max-width: 640px) {
       nav { padding: 16px 20px; }
       nav ul { display: none; }
@@ -236,25 +197,26 @@
     <ul>
       <li><a href="https://github.com/CoreyJness" target="_blank">GitHub</a></li>
       <li><a href="https://coreyjness.github.io/CoreyJness/" target="_blank">Portfolio</a></li>
-      <li><a class="nav-cta" href="#" onclick="openModal('signup'); return false;">Get Started</a></li>
+      <li>
+        <a class="nav-cta" href="#" onclick="trackCTA('signup', 'nav'); openModal('signup'); return false;">
+          Get Started
+        </a>
+      </li>
     </ul>
   </nav>
 
   <section class="hero">
     <div class="badge"><span class="badge-dot"></span> AI-Powered Solar Sales CRM</div>
-
     <h1>Close More Solar Deals,<br><em>Smarter &amp; Faster</em></h1>
-
     <p class="hero-sub">
       SolarSales combines lead management, an AI chatbot advisor, and real-time solar
       availability analysis — all in one platform built for modern sales teams.
     </p>
-
     <div class="cta-group">
-      <a href="#" class="btn btn-primary" onclick="openModal('signup'); return false;">
+      <a href="#" class="btn btn-primary" onclick="trackCTA('signup', 'hero'); openModal('signup'); return false;">
         ✦ &nbsp;Sign Up Free
       </a>
-      <a href="#" class="btn btn-secondary" onclick="openModal('demo'); return false;">
+      <a href="#" class="btn btn-secondary" onclick="trackCTA('demo', 'hero'); openModal('demo'); return false;">
         ▶ &nbsp;Request a Demo
       </a>
     </div>
@@ -276,11 +238,11 @@
         <h2>Create Your Account</h2>
         <p>Start managing leads smarter today — free, no card needed.</p>
         <label>Full Name</label>
-        <input type="text" placeholder="Corey Jones" />
+        <input type="text" id="signup-name" placeholder="Corey Jones" />
         <label>Work Email</label>
-        <input type="email" placeholder="you@company.com" />
+        <input type="email" id="signup-email" placeholder="you@company.com" />
         <label>Company</label>
-        <input type="text" placeholder="Acme Solar" />
+        <input type="text" id="signup-company" placeholder="Acme Solar" />
         <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="submitForm('signup')">
           Create Free Account →
         </button>
@@ -301,11 +263,11 @@
         <h2>Request a Demo</h2>
         <p>We'll walk you through the full platform — live, tailored to your team.</p>
         <label>Full Name</label>
-        <input type="text" placeholder="Corey Jones" />
+        <input type="text" id="demo-name" placeholder="Corey Jones" />
         <label>Work Email</label>
-        <input type="email" placeholder="you@company.com" />
+        <input type="email" id="demo-email" placeholder="you@company.com" />
         <label>Team Size</label>
-        <select>
+        <select id="demo-teamsize">
           <option value="">Select team size</option>
           <option>Just me</option>
           <option>2–10 reps</option>
@@ -325,18 +287,123 @@
   </div>
 
   <script>
+    const AMPLITUDE_API_KEY = 'YOUR_API_KEY'; // ← paste your key here
+
+    // ── helpers ──────────────────────────────────────────────────────────────
+
+    function generateId() {
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+        const r = Math.random() * 16 | 0;
+        return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+      });
+    }
+
+    // Persist a device ID across page loads so Amplitude can stitch sessions
+    function getDeviceId() {
+      let id = localStorage.getItem('amp_device_id');
+      if (!id) { id = generateId(); localStorage.setItem('amp_device_id', id); }
+      return id;
+    }
+
+    // ── HTTP API sender ───────────────────────────────────────────────────────
+
+    async function sendToAmplitudeAPI(eventType, userId, eventProps = {}) {
+      const payload = {
+        api_key: AMPLITUDE_API_KEY,
+        events: [{
+          user_id:    userId,
+          device_id:  getDeviceId(),
+          event_type: eventType,
+          time:       Date.now(),
+          insert_id:  generateId(),
+          event_properties: eventProps
+        }]
+      };
+
+      try {
+        const res = await fetch('https://api2.amplitude.com/2/httpapi', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        console.log('[Amplitude HTTP]', eventType, data);
+      } catch (err) {
+        console.error('[Amplitude HTTP] failed:', err);
+      }
+    }
+
+    // ── modal helpers ─────────────────────────────────────────────────────────
+
     function openModal(type) {
       document.getElementById('modal-' + type).classList.add('open');
       document.body.style.overflow = 'hidden';
+      // Track modal open via JS SDK
+      amplitude.track('Modal Opened', { modal_type: type });
     }
+
     function closeModal(type) {
       document.getElementById('modal-' + type).classList.remove('open');
       document.body.style.overflow = '';
     }
-    function submitForm(type) {
+
+    // ── CTA click tracking ────────────────────────────────────────────────────
+
+    function trackCTA(ctaType, location) {
+      // JS SDK event (anonymous — before user enters email)
+      amplitude.track('CTA Clicked', {
+        cta_type: ctaType,       // 'signup' | 'demo'
+        location:  location      // 'hero' | 'nav'
+      });
+    }
+
+    // ── form submission ───────────────────────────────────────────────────────
+
+    async function submitForm(type) {
+      const email   = document.getElementById(type + '-email').value.trim();
+      const name    = document.getElementById(type + '-name').value.trim();
+
+      // Use email as user_id so Amplitude identifies the person
+      const userId = email || getDeviceId();
+
+      // 1. Identify the user in the JS SDK
+      const identifyEvent = new amplitude.Identify();
+      identifyEvent.set('name',    name);
+      identifyEvent.set('email',   email);
+      if (type === 'signup') {
+        identifyEvent.set('company', document.getElementById('signup-company').value.trim());
+      }
+      if (type === 'demo') {
+        identifyEvent.set('team_size', document.getElementById('demo-teamsize').value);
+      }
+      amplitude.setUserId(userId);
+      amplitude.identify(identifyEvent);
+
+      // 2. Track form submit via JS SDK
+      amplitude.track('Form Submitted', {
+        form_type:  type,
+        user_email: email,
+        user_name:  name
+      });
+
+      // 3. Also send via HTTP API (server-side style, persists user profile)
+      const extraProps = type === 'signup'
+        ? { company: document.getElementById('signup-company').value.trim() }
+        : { team_size: document.getElementById('demo-teamsize').value };
+
+      await sendToAmplitudeAPI('Form Submitted', userId, {
+        form_type:  type,
+        user_email: email,
+        user_name:  name,
+        ...extraProps
+      });
+
+      // 4. Show success state
       document.getElementById(type + '-form').style.display = 'none';
       document.getElementById(type + '-success').style.display = 'block';
     }
+
+    // Close modal on backdrop click
     document.querySelectorAll('.modal-overlay').forEach(overlay => {
       overlay.addEventListener('click', e => {
         if (e.target === overlay) {
