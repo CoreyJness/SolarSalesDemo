@@ -265,6 +265,7 @@
           Button now calls submitForm('signup') directly via onclick.
         -->
         <button
+          type="button"
           class="btn btn-primary"
           style="width:100%;justify-content:center"
           id="signup-submit-btn"
@@ -309,6 +310,7 @@
         </select>
 
         <button
+          type="button"
           class="btn btn-primary"
           style="width:100%;justify-content:center"
           onclick="submitForm('demo')"
@@ -441,22 +443,21 @@
         user_name:  name
       });
 
-      // 3. Mirror the event via HTTP API (server-side style — persists user profile
-      //    even when the browser tab is closed before the SDK can flush)
+      // 3. Swap to success state immediately — don't block on network
+      document.getElementById(type + '-form').style.display    = 'none';
+      document.getElementById(type + '-success').style.display = 'block';
+
+      // 4. Fire HTTP API in the background (best-effort)
       const extraProps = type === 'signup'
         ? { company: document.getElementById('signup-company').value.trim() }
         : { team_size: document.getElementById('demo-teamsize').value };
 
-      await sendToAmplitudeAPI('Form Submitted', userId, {
+      sendToAmplitudeAPI('Form Submitted', userId, {
         form_type:  type,
         user_email: email,
         user_name:  name,
         ...extraProps
-      });
-
-      // 4. Swap to success state
-      document.getElementById(type + '-form').style.display    = 'none';
-      document.getElementById(type + '-success').style.display = 'block';
+      }).catch(err => console.error('[Amplitude HTTP background]', err));
     }
 
     // Close modal on backdrop click
