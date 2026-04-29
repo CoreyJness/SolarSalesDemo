@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RangrSolar CRM – AI-Powered Solar Sales Platform</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #0b0f14;
+      --surface: #111720;
+      --border:  #1e2a38;
+      --gold:    #f0a500;
+      --gold-dim:#c98a00;
+      --cyan:    #38c9c0;
+      --text:    #e8edf3;
+      --muted:   #7a8fa6;
+      --radius:  10px;
+    }
+
+    html, body { height: 100%; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      line-height: 1.7;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 0; opacity: .5;
+    }
+
+    /* ── NAV ── */
+    nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 48px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(11,15,20,.9);
+      backdrop-filter: blur(14px);
+      position: relative; z-index: 10;
+    }
+    .nav-logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800; font-size: 1.25rem;
+      letter-spacing: -.02em; color: var(--gold); text-decoration: none;
+    }
+    .nav-logo span { color: var(--cyan); }
+
+    nav ul { list-style: none; display: flex; gap: 36px; }
+    nav ul a {
+      color: var(--muted); text-decoration: none;
+      font-size: .9rem; font-weight: 400; transition: color .2s;
+    }
+    nav ul a:hover { color: var(--text); }
+    .nav-cta {
+      background: var(--gold) !important; color: #0b0f14 !important;
+      font-weight: 500 !important; padding: 8px 20px;
+      border-radius: var(--radius); transition: background .2s, transform .15s !important;
+    }
+    .nav-cta:hover { background: var(--gold-dim) !important; transform: translateY(-1px); }
+
+    /* ── HERO ── */
+    .hero {
+      flex: 1; position: relative;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center; padding: 90px 24px 70px; overflow: hidden;
+    }
+    .hero::after {
+      content: ''; position: absolute;
+      width: 720px; height: 720px;
+      background: radial-gradient(circle, rgba(240,165,0,.11) 0%, transparent 70%);
+      top: -80px; left: 50%; transform: translateX(-50%);
+      pointer-events: none; z-index: 0;
+    }
+    .hero > * { position: relative; z-index: 1; }
+
+    .badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      border: 1px solid var(--border); border-radius: 99px;
+      padding: 6px 16px; font-size: .78rem; font-weight: 500;
+      color: var(--cyan); letter-spacing: .06em; text-transform: uppercase;
+      margin-bottom: 28px; background: rgba(56,201,192,.06);
+      animation: fadeUp .55s ease both;
+    }
+    .badge-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--cyan); animation: pulse 2s infinite;
+    }
+
+    h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2.8rem, 6.5vw, 5rem);
+      font-weight: 800; line-height: 1.06;
+      letter-spacing: -.03em; max-width: 840px;
+      animation: fadeUp .55s .1s ease both;
+    }
+    h1 em {
+      font-style: normal;
+      background: linear-gradient(90deg, var(--gold), var(--cyan));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-sub {
+      margin-top: 22px; max-width: 540px;
+      color: var(--muted); font-size: 1.05rem;
+      animation: fadeUp .55s .18s ease both;
+    }
+
+    .cta-group {
+      display: flex; flex-wrap: wrap; gap: 16px;
+      margin-top: 44px; justify-content: center;
+      animation: fadeUp .55s .26s ease both;
+    }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 15px 34px; border-radius: var(--radius);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1rem; font-weight: 500;
+      cursor: pointer; text-decoration: none;
+      transition: transform .18s, box-shadow .18s;
+      border: none; position: relative; overflow: hidden;
+    }
+    .btn::after {
+      content: ''; position: absolute; inset: 0;
+      background: white; opacity: 0; transition: opacity .18s;
+    }
+    .btn:hover::after { opacity: .06; }
+    .btn:hover { transform: translateY(-2px); }
+
+    .btn-primary {
+      background: var(--gold); color: #0b0f14;
+      box-shadow: 0 0 28px rgba(240,165,0,.28);
+    }
+    .btn-primary:hover { box-shadow: 0 0 42px rgba(240,165,0,.44); }
+
+    .btn-secondary {
+      background: transparent; color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover { border-color: var(--cyan); color: var(--cyan); }
+
+    /* ── TRUST BAR ── */
+    .trust-bar {
+      display: flex; align-items: center; justify-content: center;
+      gap: 32px; flex-wrap: wrap; padding: 20px 24px;
+      border-top: 1px solid var(--border);
+      background: rgba(17,23,32,.7);
+      font-size: .82rem; color: var(--muted);
+      position: relative; z-index: 10;
+    }
+    .trust-item { display: flex; align-items: center; gap: 8px; }
+
+    /* ── MODALS ── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,.75); backdrop-filter: blur(6px);
+      align-items: center; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 18px; padding: 44px 40px;
+      width: 100%; max-width: 440px;
+      position: relative; animation: popIn .22s ease both;
+    }
+    .modal-close {
+      position: absolute; top: 18px; right: 20px;
+      background: none; border: none; color: var(--muted);
+      font-size: 1.5rem; cursor: pointer; line-height: 1;
+    }
+    .modal-close:hover { color: var(--text); }
+    .modal h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.5rem; font-weight: 700; margin-bottom: 6px;
+    }
+    .modal p { color: var(--muted); font-size: .9rem; margin-bottom: 28px; }
+    .modal label {
+      display: block; font-size: .82rem; font-weight: 500;
+      color: var(--muted); margin-bottom: 6px;
+      text-transform: uppercase; letter-spacing: .05em;
+    }
+    .modal input, .modal select {
+      width: 100%; background: var(--bg); border: 1px solid var(--border);
+      border-radius: 8px; color: var(--text); padding: 12px 14px;
+      font-family: 'DM Sans', sans-serif; font-size: .95rem;
+      margin-bottom: 18px; outline: none; transition: border-color .2s;
+    }
+    .modal input:focus, .modal select:focus { border-color: var(--gold); }
+    .modal select option { background: var(--surface); }
+    .success-msg { display: none; text-align: center; padding: 20px 0 8px; }
+    .success-msg .check { font-size: 3rem; margin-bottom: 12px; }
+    .success-msg h3 {
+      font-family: 'Syne', sans-serif; font-size: 1.3rem; font-weight: 700;
+    }
+    .success-msg p { color: var(--muted); margin: 8px 0 0; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(.94); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: .5; transform: scale(1.35); }
+    }
+
+    @media (max-width: 640px) {
+      nav { padding: 16px 20px; }
+      nav ul { display: none; }
+      .trust-bar { gap: 18px; }
+      .modal { padding: 36px 24px; margin: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a class="nav-logo" href="#">Rangr<span>Solar</span></a>
+    <ul>
+      <li><a href="https://github.com/CoreyJness/RangrSolar" target="_blank">GitHub</a></li>
+      <li><a href="https://coreyjness.github.io/CoreyJness/" target="_blank">Portfolio</a></li>
+      <li><a class="nav-cta" href="#" onclick="openModal('signup'); return false;">Get Started</a></li>
+    </ul>
+  </nav>
+
+  <section class="hero">
+    <div class="badge"><span class="badge-dot"></span> AI-Powered Solar Sales CRM</div>
+
+    <h1>Close More Solar Deals,<br><em>Smarter &amp; Faster</em></h1>
+
+    <p class="hero-sub">
+      RangrSolar combines lead management, an AI chatbot advisor, and real-time solar
+      availability analysis — all in one platform built for modern sales teams.
+    </p>
+
+    <div class="cta-group">
+      <a href="#" class="btn btn-primary" onclick="openModal('signup'); return false;">
+        ✦ &nbsp;Sign Up Free
+      </a>
+      <a href="#" class="btn btn-secondary" onclick="openModal('demo'); return false;">
+        ▶ &nbsp;Request a Demo
+      </a>
+    </div>
+  </section>
+
+  <div class="trust-bar">
+    <div class="trust-item">🛡️ No credit card required</div>
+    <div class="trust-item">⚡ 5-minute setup</div>
+    <div class="trust-item">🤖 RAG-powered AI advisor</div>
+    <div class="trust-item">🔗 Twilio &amp; API integrations</div>
+    <div class="trust-item">🏆 Built by a Data &amp; ML Engineer</div>
+  </div>
+
+  <!-- SIGN UP MODAL -->
+  <div class="modal-overlay" id="modal-signup">
+    <div class="modal">
+      <button class="modal-close" onclick="closeModal('signup')">×</button>
+      <div id="signup-form">
+        <h2>Create Your Account</h2>
+        <p>Start managing leads smarter today — free, no card needed.</p>
+        <label>Full Name</label>
+        <input type="text" placeholder="Corey Jones" />
+        <label>Work Email</label>
+        <input type="email" placeholder="you@company.com" />
+        <label>Company</label>
+        <input type="text" placeholder="Acme Solar" />
+        <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="submitForm('signup')">
+          Create Free Account →
+        </button>
+      </div>
+      <div class="success-msg" id="signup-success">
+        <div class="check">🎉</div>
+        <h3>You're on the list!</h3>
+        <p>Check your inbox for a confirmation link and getting-started guide.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- DEMO MODAL -->
+  <div class="modal-overlay" id="modal-demo">
+    <div class="modal">
+      <button class="modal-close" onclick="closeModal('demo')">×</button>
+      <div id="demo-form">
+        <h2>Request a Demo</h2>
+        <p>We'll walk you through the full platform — live, tailored to your team.</p>
+        <label>Full Name</label>
+        <input type="text" placeholder="Corey Jones" />
+        <label>Work Email</label>
+        <input type="email" placeholder="you@company.com" />
+        <label>Team Size</label>
+        <select>
+          <option value="">Select team size</option>
+          <option>Just me</option>
+          <option>2–10 reps</option>
+          <option>11–50 reps</option>
+          <option>50+ reps</option>
+        </select>
+        <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="submitForm('demo')">
+          Book My Demo →
+        </button>
+      </div>
+      <div class="success-msg" id="demo-success">
+        <div class="check">📅</div>
+        <h3>Demo request received!</h3>
+        <p>Expect a calendar invite within 1 business day.</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openModal(type) {
+      document.getElementById('modal-' + type).classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeModal(type) {
+      document.getElementById('modal-' + type).classList.remove('open');
+      document.body.style.overflow = '';
+    }
+    function submitForm(type) {
+      document.getElementById(type + '-form').style.display = 'none';
+      document.getElementById(type + '-success').style.display = 'block';
+    }
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+      overlay.addEventListener('click', e => {
+        if (e.target === overlay) {
+          overlay.classList.remove('open');
+          document.body.style.overflow = '';
+        }
+      });
+    });
+  </script>
+</body>
+</html>
