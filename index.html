@@ -328,55 +328,9 @@
   </div>
 
   <script>
-    const AMPLITUDE_API_KEY = 'ad228784b8b61db47a4f3e7a7824a0e1';
-
-    // ── helpers ──────────────────────────────────────────────────────────────
-
-    function generateId() {
-      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
-        const r = Math.random() * 16 | 0;
-        return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
-      });
-    }
-
-    // Persist a device ID across page loads so Amplitude can stitch sessions
-    function getDeviceId() {
-      let id = localStorage.getItem('amp_device_id');
-      if (!id) { id = generateId(); localStorage.setItem('amp_device_id', id); }
-      return id;
-    }
-
     // Simple email format validator
     function isValidEmail(email) {
       return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    }
-
-    // ── HTTP API sender ───────────────────────────────────────────────────────
-
-    async function sendToAmplitudeAPI(eventType, userId, eventProps = {}) {
-      const payload = {
-        api_key: AMPLITUDE_API_KEY,
-        events: [{
-          user_id:    userId,
-          device_id:  getDeviceId(),
-          event_type: eventType,
-          time:       Date.now(),
-          insert_id:  generateId(),
-          event_properties: eventProps
-        }]
-      };
-
-      try {
-        const res = await fetch('https://api2.amplitude.com/2/httpapi', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-        const data = await res.json();
-        console.log('[Amplitude HTTP]', eventType, data);
-      } catch (err) {
-        console.error('[Amplitude HTTP] failed:', err);
-      }
     }
 
     // ── modal helpers ─────────────────────────────────────────────────────────
@@ -423,8 +377,11 @@
       // Use email as user_id so Amplitude can identify the person across sessions
       const userId = email;
 
-      // 1 & 2. Identify + track via JS SDK — wrapped in try/catch so an
-      //         ad-blocker or blocked SDK never halts the success swap
+      // Identify the user and track the event via the JS SDK.
+      // Wrapped in try/catch so a blocked SDK never halts the success swap.
+      // NOTE: The JS SDK is the sole Amplitude integration — the HTTP API
+      // cannot be used from GitHub Pages as ad blockers intercept it at the
+      // network level with no server-side proxy available.
       try {
         const identifyEvent = new amplitude.Identify();
         identifyEvent.set('name',  name);
@@ -450,17 +407,6 @@
       document.getElementById(type + '-form').style.display    = 'none';
       document.getElementById(type + '-success').style.display = 'block';
 
-      // 4. Fire HTTP API in the background (best-effort)
-      const extraProps = type === 'signup'
-        ? { company: document.getElementById('signup-company').value.trim() }
-        : { team_size: document.getElementById('demo-teamsize').value };
-
-      sendToAmplitudeAPI('Form Submitted', userId, {
-        form_type:  type,
-        user_email: email,
-        user_name:  name,
-        ...extraProps
-      }).catch(err => console.error('[Amplitude HTTP background]', err));
     }
 
     // Close modal on backdrop click
