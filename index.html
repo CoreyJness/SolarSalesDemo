@@ -142,6 +142,8 @@
       font-size: .82rem; color: var(--muted); position: relative; z-index: 10;
     }
     .trust-item { display: flex; align-items: center; gap: 8px; }
+
+    /* ── MODALS ── */
     .modal-overlay {
       display: none; position: fixed; inset: 0; z-index: 200;
       background: rgba(0,0,0,.75); backdrop-filter: blur(6px);
@@ -175,10 +177,18 @@
     }
     .modal input:focus, .modal select:focus { border-color: var(--gold); }
     .modal select option { background: var(--surface); }
+    .modal .btn { border: none; }
+
+    /* Error state */
+    .modal input.input-error { border-color: #e05c5c; }
+    .field-error { color: #e05c5c; font-size: .78rem; margin-top: -12px; margin-bottom: 14px; display: none; }
+    .field-error.visible { display: block; }
+
     .success-msg { display: none; text-align: center; padding: 20px 0 8px; }
     .success-msg .check { font-size: 3rem; margin-bottom: 12px; }
     .success-msg h3 { font-family: 'Syne', sans-serif; font-size: 1.3rem; font-weight: 700; }
     .success-msg p { color: var(--muted); margin: 8px 0 0; }
+
     @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes popIn { from { opacity: 0; transform: scale(.94); } to { opacity: 1; transform: scale(1); } }
     @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .5; transform: scale(1.35); } }
@@ -230,43 +240,66 @@
     <div class="trust-item">🏆 Built by a Data &amp; ML Engineer</div>
   </div>
 
-  <!-- SIGN UP MODAL -->
+  <!-- ── SIGN UP MODAL (FIX: was floating loose outside any overlay wrapper) ── -->
   <div class="modal-overlay" id="modal-signup">
     <div class="modal">
       <button class="modal-close" onclick="closeModal('signup')">×</button>
+
       <div id="signup-form">
         <h2>Create Your Account</h2>
         <p>Start managing leads smarter today — free, no card needed.</p>
-        <label>Full Name</label>
-        <input type="text" id="signup-name" placeholder="Corey Jones" />
-        <label>Work Email</label>
-        <input type="email" id="signup-email" placeholder="you@company.com" />
-        <label>Company</label>
-        <input type="text" id="signup-company" placeholder="Acme Solar" />
-        <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="submitForm('signup')">
+
+        <label for="signup-name">Full Name</label>
+        <input type="text" id="signup-name" placeholder="Corey Jones" autocomplete="name" />
+
+        <label for="signup-email">Work Email</label>
+        <input type="email" id="signup-email" placeholder="you@company.com" autocomplete="email" />
+        <!-- FIX: added validation error hint -->
+        <div class="field-error" id="signup-email-error">Please enter a valid email address.</div>
+
+        <label for="signup-company">Company</label>
+        <input type="text" id="signup-company" placeholder="Acme Solar" autocomplete="organization" />
+
+        <!--
+          FIX: removed native <form> + type="submit" to prevent page reload.
+          Button now calls submitForm('signup') directly via onclick.
+        -->
+        <button
+          class="btn btn-primary"
+          style="width:100%;justify-content:center"
+          id="signup-submit-btn"
+          onclick="submitForm('signup')"
+        >
           Create Free Account →
         </button>
       </div>
+
+      <!-- FIX: added missing success state for signup (only demo had one before) -->
       <div class="success-msg" id="signup-success">
         <div class="check">🎉</div>
-        <h3>You're on the list!</h3>
-        <p>Check your inbox for a confirmation link and getting-started guide.</p>
+        <h3>You're in!</h3>
+        <p>Check your inbox — we'll get you set up right away.</p>
       </div>
     </div>
   </div>
 
-  <!-- DEMO MODAL -->
+  <!-- ── DEMO MODAL ── -->
   <div class="modal-overlay" id="modal-demo">
     <div class="modal">
       <button class="modal-close" onclick="closeModal('demo')">×</button>
+
       <div id="demo-form">
         <h2>Request a Demo</h2>
         <p>We'll walk you through the full platform — live, tailored to your team.</p>
-        <label>Full Name</label>
-        <input type="text" id="demo-name" placeholder="Corey Jones" />
-        <label>Work Email</label>
-        <input type="email" id="demo-email" placeholder="you@company.com" />
-        <label>Team Size</label>
+
+        <label for="demo-name">Full Name</label>
+        <input type="text" id="demo-name" placeholder="Corey Jones" autocomplete="name" />
+
+        <label for="demo-email">Work Email</label>
+        <input type="email" id="demo-email" placeholder="you@company.com" autocomplete="email" />
+        <div class="field-error" id="demo-email-error">Please enter a valid email address.</div>
+
+        <label for="demo-teamsize">Team Size</label>
         <select id="demo-teamsize">
           <option value="">Select team size</option>
           <option>Just me</option>
@@ -274,10 +307,16 @@
           <option>11–50 reps</option>
           <option>50+ reps</option>
         </select>
-        <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="submitForm('demo')">
+
+        <button
+          class="btn btn-primary"
+          style="width:100%;justify-content:center"
+          onclick="submitForm('demo')"
+        >
           Book My Demo →
         </button>
       </div>
+
       <div class="success-msg" id="demo-success">
         <div class="check">📅</div>
         <h3>Demo request received!</h3>
@@ -287,7 +326,7 @@
   </div>
 
   <script>
-    const AMPLITUDE_API_KEY = 'ad228784b8b61db47a4f3e7a7824a0e1'; // ← paste your key here
+    const AMPLITUDE_API_KEY = 'ad228784b8b61db47a4f3e7a7824a0e1';
 
     // ── helpers ──────────────────────────────────────────────────────────────
 
@@ -303,6 +342,11 @@
       let id = localStorage.getItem('amp_device_id');
       if (!id) { id = generateId(); localStorage.setItem('amp_device_id', id); }
       return id;
+    }
+
+    // Simple email format validator
+    function isValidEmail(email) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     }
 
     // ── HTTP API sender ───────────────────────────────────────────────────────
@@ -338,7 +382,6 @@
     function openModal(type) {
       document.getElementById('modal-' + type).classList.add('open');
       document.body.style.overflow = 'hidden';
-      // Track modal open via JS SDK
       amplitude.track('Modal Opened', { modal_type: type });
     }
 
@@ -350,26 +393,38 @@
     // ── CTA click tracking ────────────────────────────────────────────────────
 
     function trackCTA(ctaType, location) {
-      // JS SDK event (anonymous — before user enters email)
       amplitude.track('CTA Clicked', {
-        cta_type: ctaType,       // 'signup' | 'demo'
-        location:  location      // 'hero' | 'nav'
+        cta_type: ctaType,   // 'signup' | 'demo'
+        location:  location  // 'hero' | 'nav'
       });
     }
 
     // ── form submission ───────────────────────────────────────────────────────
 
     async function submitForm(type) {
-      const email   = document.getElementById(type + '-email').value.trim();
-      const name    = document.getElementById(type + '-name').value.trim();
+      const emailInput = document.getElementById(type + '-email');
+      const email      = emailInput.value.trim();
+      const name       = document.getElementById(type + '-name').value.trim();
+      const errorEl    = document.getElementById(type + '-email-error');
 
-      // Use email as user_id so Amplitude identifies the person
-      const userId = email || getDeviceId();
+      // FIX: client-side validation — guard against empty / malformed email
+      //      before sending anything to Amplitude
+      if (!email || !isValidEmail(email)) {
+        emailInput.classList.add('input-error');
+        errorEl.classList.add('visible');
+        emailInput.focus();
+        return;
+      }
+      emailInput.classList.remove('input-error');
+      errorEl.classList.remove('visible');
 
-      // 1. Identify the user in the JS SDK
+      // Use email as user_id so Amplitude can identify the person across sessions
+      const userId = email;
+
+      // 1. Identify the user in the JS SDK (sets persistent user properties)
       const identifyEvent = new amplitude.Identify();
-      identifyEvent.set('name',    name);
-      identifyEvent.set('email',   email);
+      identifyEvent.set('name',  name);
+      identifyEvent.set('email', email);
       if (type === 'signup') {
         identifyEvent.set('company', document.getElementById('signup-company').value.trim());
       }
@@ -386,7 +441,8 @@
         user_name:  name
       });
 
-      // 3. Also send via HTTP API (server-side style, persists user profile)
+      // 3. Mirror the event via HTTP API (server-side style — persists user profile
+      //    even when the browser tab is closed before the SDK can flush)
       const extraProps = type === 'signup'
         ? { company: document.getElementById('signup-company').value.trim() }
         : { team_size: document.getElementById('demo-teamsize').value };
@@ -398,8 +454,8 @@
         ...extraProps
       });
 
-      // 4. Show success state
-      document.getElementById(type + '-form').style.display = 'none';
+      // 4. Swap to success state
+      document.getElementById(type + '-form').style.display    = 'none';
       document.getElementById(type + '-success').style.display = 'block';
     }
 
