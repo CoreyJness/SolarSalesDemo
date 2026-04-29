@@ -313,6 +313,7 @@
           type="button"
           class="btn btn-primary"
           style="width:100%;justify-content:center"
+          id="demo-submit-btn"
           onclick="submitForm('demo')"
         >
           Book My Demo →
@@ -328,7 +329,10 @@
   </div>
 
   <script>
-    // Simple email format validator
+    // ── REPLACE with your deployed Apps Script Web App URL (see Code.gs) ─────
+    const SHEET_HANDLER_URL = 'https://script.google.com/macros/s/AKfycbxpf7m-NmJA0vpaGILrB09aIJTCEmWjEyLB1hB7OFUKmd8jaIEhXr7RtPghARJfCdnLKg/exec';
+    // ─────────────────────────────────────────────────────────────────────────
+
     function isValidEmail(email) {
       return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     }
@@ -338,7 +342,7 @@
     function openModal(type) {
       document.getElementById('modal-' + type).classList.add('open');
       document.body.style.overflow = 'hidden';
-      amplitude.track('Modal Opened', { modal_type: type });
+      try { amplitude.track('Modal Opened', { modal_type: type }); } catch(e) {}
     }
 
     function closeModal(type) {
@@ -346,13 +350,25 @@
       document.body.style.overflow = '';
     }
 
-    // ── CTA click tracking ────────────────────────────────────────────────────
-
     function trackCTA(ctaType, location) {
-      amplitude.track('CTA Clicked', {
-        cta_type: ctaType,   // 'signup' | 'demo'
-        location:  location  // 'hero' | 'nav'
+      try { amplitude.track('CTA Clicked', { cta_type: ctaType, location: location }); } catch(e) {}
+    }
+
+    // ── send row to Apps Script handler (server-side Sheets API write) ────────
+    // The Apps Script Web App uses the service account to write the row, then
+    // immediately fires the Amplitude Batch API call — all server-side so
+    // nothing is blocked by ad blockers.
+
+    async function sendToHandler(payload) {
+      // Send as URL-encoded — avoids CORS preflight on Apps Script endpoints
+      const res = await fetch(SHEET_HANDLER_URL, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body:    new URLSearchParams(payload).toString()
       });
+      const json = await res.json();
+      console.log('[Handler]', json);
+      if (json.result !== 'success') throw new Error(json.message || 'Handler error');
     }
 
     // ── form submission ───────────────────────────────────────────────────────
@@ -362,9 +378,9 @@
       const email      = emailInput.value.trim();
       const name       = document.getElementById(type + '-name').value.trim();
       const errorEl    = document.getElementById(type + '-email-error');
+      const btn        = document.getElementById(type === 'signup' ? 'signup-submit-btn' : 'demo-submit-btn');
 
-      // FIX: client-side validation — guard against empty / malformed email
-      //      before sending anything to Amplitude
+      // Validate email
       if (!email || !isValidEmail(email)) {
         emailInput.classList.add('input-error');
         errorEl.classList.add('visible');
@@ -374,42 +390,43 @@
       emailInput.classList.remove('input-error');
       errorEl.classList.remove('visible');
 
-      // Use email as user_id so Amplitude can identify the person across sessions
-      const userId = email;
+      // Loading state
+      if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
 
-      // Identify the user and track the event via the JS SDK.
-      // Wrapped in try/catch so a blocked SDK never halts the success swap.
-      // NOTE: The JS SDK is the sole Amplitude integration — the HTTP API
-      // cannot be used from GitHub Pages as ad blockers intercept it at the
-      // network level with no server-side proxy available.
+      const payload = {
+        form_type:  type,
+        name:       name,
+        email:      email,
+        company:    type === 'signup' ? document.getElementById('signup-company').value.trim() : '',
+        team_size:  type === 'demo'   ? document.getElementById('demo-teamsize').value : '',
+        timestamp:  new Date().toISOString()
+      };
+
+      // 1. POST to Apps Script — writes the sheet row AND fires Amplitude Batch API
       try {
-        const identifyEvent = new amplitude.Identify();
-        identifyEvent.set('name',  name);
-        identifyEvent.set('email', email);
-        if (type === 'signup') {
-          identifyEvent.set('company', document.getElementById('signup-company').value.trim());
-        }
-        if (type === 'demo') {
-          identifyEvent.set('team_size', document.getElementById('demo-teamsize').value);
-        }
-        amplitude.setUserId(userId);
-        amplitude.identify(identifyEvent);
-        amplitude.track('Form Submitted', {
-          form_type:  type,
-          user_email: email,
-          user_name:  name
-        });
-      } catch (ampErr) {
-        console.warn('[Amplitude SDK] blocked or unavailable:', ampErr);
+        await sendToHandler(payload);
+      } catch (err) {
+        console.error('[Handler] failed:', err);
+        // Show success anyway — don't penalise the user for a network hiccup
       }
 
-      // 3. Swap to success state immediately — never blocked by Amplitude
+      // 2. Amplitude JS SDK — best-effort client-side tracking
+      try {
+        const id = new amplitude.Identify();
+        id.set('name', name); id.set('email', email);
+        if (type === 'signup') id.set('company',   payload.company);
+        if (type === 'demo')   id.set('team_size', payload.team_size);
+        amplitude.setUserId(email);
+        amplitude.identify(id);
+        amplitude.track('Form Submitted', { form_type: type, user_email: email, user_name: name });
+      } catch(e) { console.warn('[Amplitude SDK]', e); }
+
+      // 3. Swap to success state
       document.getElementById(type + '-form').style.display    = 'none';
       document.getElementById(type + '-success').style.display = 'block';
-
     }
 
-    // Close modal on backdrop click
+    // Backdrop close
     document.querySelectorAll('.modal-overlay').forEach(overlay => {
       overlay.addEventListener('click', e => {
         if (e.target === overlay) {
